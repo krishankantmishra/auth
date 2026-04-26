@@ -14,6 +14,11 @@ It supports user registration, login, protected routes, and token refresh functi
 - Refresh Token System (HTTP-only cookies)
 - Password Hashing (SHA-256)
 - Middleware-based Route Protection
+- Logout from current device
+- Logout from all devices
+- Session tracking with IP & User-Agent
+- Refresh Token Rotation
+- Session Revocation Support
 
 ---
 
@@ -31,7 +36,8 @@ AUTH/
 │ │ └── auth.middleware.js
 │ │
 │ ├── module/
-│ │ └── user.module.js
+│ │ ├── user.module.js
+│ │ └── session.module.js
 │ │
 │ ├── routes/
 │ │ └── auth.routes.js
@@ -47,7 +53,7 @@ AUTH/
 ## ⚙️ Installation
 
 ```bash
-git clone <your-repo-url>
+git clone (https://github.com/krishankantmishra/auth)
 cd AUTH
 npm install
 
@@ -114,26 +120,63 @@ Uses cookie (refreshToken)
 
 Returns new accessToken
 
+5️⃣ Logout (Current Device)
+
+POST /api/auth/logout
+
+Revokes current session
+
+Clears refresh token cookie
+
+6️⃣ Logout All Devices
+
+POST /api/auth/logout-all
+
+Headers:
+
+Authorization: Bearer <accessToken>
+
+Revokes all active sessions
+
+Clears refresh token cookie
+
 🔐 Authentication Flow
 
 User logs in → receives:
 Access Token (15 min expiry)
 Refresh Token (7 days, stored in cookie)
 
+A session is created in MongoDB storing:
+
+User ID
+Hashed refresh token
+IP address
+User-Agent
+Revoked status
+
 Access protected routes using:
 
 Authorization: Bearer <accessToken>
+
+Middleware verifies:
+
+JWT validity
+Session exists in DB
+Session is not revoked
 
 When access token expires:
 Call /api/auth/refresh-token
 Get a new access token
 
-Security Notes
+🛡️ Security Notes
 
 Refresh token stored in HTTP-only cookies
 Access tokens expire in 15 minutes
 Refresh tokens expire in 7 days
 Passwords hashed using SHA-256
+Refresh Token Rotation
+Session Revocation Support
+Device-based session tracking
 
 🧑‍💻 Tech Stack
 
